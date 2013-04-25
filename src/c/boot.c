@@ -14,18 +14,7 @@ QUEUE qInt;
 void make_window(byte *, int, int, char *);
 void make_textbox(SHEET *, int, int, int, int, int);
 void putfont_sheet(SHEET *, int, int, int, int, char *, int);
-
-typedef struct __TSS32__ {
-	int backlink, esp0, ss0, esp1, ss1, esp2, ss2, cr3;
-	int eip, eflags, eax, ecx, edx, ebx, esp, ebp, esi, edi;
-	int es, cs, ss, ds, fs, gs;
-	int ldtr, iomap;
-} TSS32;
-
-void task_b_main() {
-	while(1) { io_hlt(); }
-}
-
+void task_b_main();
 
 void Main() {
 	char s[30];
@@ -286,3 +275,9 @@ void putfont_sheet(SHEET * sheet, int x, int y, int c, int b, char *s, int l) {
 	vprint(sheet->buf, s, sheet->bxsize, x, y, c);
 	sheet_refresh(sheet, x, y, x + l * 8, y + 16);
 }
+
+void task_b_main() {
+	while(1) { io_hlt(); }
+}
+
+
