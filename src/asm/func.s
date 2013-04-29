@@ -1,7 +1,7 @@
 .code32
 
 .globl memtest_sub
-.globl taskswitch4
+.globl taskswitch4, taskswitch5
 
 .text
 memtest_sub:
@@ -36,4 +36,8 @@ mts_fin:
 
 taskswitch4:
 	ljmpl $4*8, $0x00000000
+	ret
+
+taskswitch5:
+	ljmpl $5*8, $0x00000000
 	ret

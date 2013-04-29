@@ -108,11 +108,11 @@ void Main() {
 
 	// set tss to segment descriptor
 	SEGMENT_DESCRIPTOR *gdt = (SEGMENT_DESCRIPTOR*)ADR_GDT;
-	set_segmdesc(gdt+3, 103, (int)&tss_a, AR_TSS32);
-	set_segmdesc(gdt+4, 103, (int)&tss_b, AR_TSS32);
+	set_segmdesc(gdt+4, 103, (int)&tss_a, AR_TSS32);
+	set_segmdesc(gdt+5, 103, (int)&tss_b, AR_TSS32);
 
 	// load tss
-	load_tr(3*8);
+	load_tr(4*8);
 	task_b_esp = mem_alloc_4k(memman, 64*1024) + 64*1024;
 	tss_b.eip = (int)&task_b_main;
 	tss_b.eflags = 0x00000202; // IF = 1;
@@ -130,7 +130,6 @@ void Main() {
 	tss_b.ds = 1*8;
 	tss_b.fs = 1*8;
 	tss_b.gs = 1*8;
-
 
 
 	while(1) {
@@ -189,7 +188,7 @@ void Main() {
 				}
 			} else if(i == 10) {
 				putfont_sheet(sheet_back, 0, 64, COL_FFFFFF, COL_008484, "10[sec]", 7);
-				taskswitch4();
+				taskswitch5();
 			} else if(i == 3) {
 				putfont_sheet(sheet_back, 0, 80, COL_FFFFFF, COL_008484, "3[sec]", 6);
 			} else if(i <= 1) {
@@ -277,7 +276,27 @@ void putfont_sheet(SHEET * sheet, int x, int y, int c, int b, char *s, int l) {
 }
 
 void task_b_main() {
-	while(1) { io_hlt(); }
+	QUEUE queue;
+	TIMER *timer;
+	int i, queue_buf[128];
+
+	queue_init(&queue, 128, queue_buf);
+	timer = timer_alloc();
+	timer_init(timer, &queue, 1);
+	timer_settime(timer, 500);
+
+	while(1) {
+		io_cli();
+		if(queue_status(&queue) == 0) {
+			io_stihlt();
+		} else {
+			i = queue_get(&queue);
+			io_sti();
+			if(i == 1) {	// time out
+				taskswitch4();
+			}
+		}
+	}
 }
 
 

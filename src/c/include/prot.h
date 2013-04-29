@@ -90,6 +90,7 @@ void	timer_settime(TIMER *, dword);
 // GASで記述された関数
 dword memtest_sub(dword, dword);
 void taskswitch4();
+void taskswitch5();
 
 // mnemonic.s
 // GASで記述されたニーモニック関連関数
