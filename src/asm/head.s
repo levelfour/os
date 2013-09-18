@@ -107,13 +107,13 @@ pipelineflash:
 # bootpackの転送
 	movl $bootpack, %esi
 	movl $BOTPAK, %edi
-	movl $512*1024/4, %ecx
+	movl $131072, %ecx
 	call memcpy
 
 # ブートセクタの転送
 	movl $0x7c00, %esi
 	movl $DSKCAC, %edi
-	movl $512/4, %ecx
+	movl $128, %ecx
 	call memcpy
 
 # 残り
@@ -121,8 +121,8 @@ pipelineflash:
 	movl $DSKCAC+512, %edi
 	movl $0x00, %ecx
 	movb (CYLS), %cl
-	imull $512*18*2/4, %ecx
-	subl $512/4, %ecx
+	imull $4608, %ecx
+	subl $128, %ecx
 	call memcpy
 
 # start bootpack

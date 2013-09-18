@@ -1,4 +1,7 @@
 QEMU=qemu-system-i386
+CC=~/opt/cross/bin/i686-elf-gcc
+AS=~/opt/cross/bin/i686-elf-as
+LD=~/opt/cross/bin/i686-elf-ld
 
 OSNAME=os
 BOOTOBJS=$(OBJ)/boot.o $(OBJ)/graphic.o $(OBJ)/dsctbl.o \
@@ -23,16 +26,17 @@ BINOPT=-nostdlib -Wl,--oformat=binary
 QEMUOPT=-m 32 -localtime -vga std -fda
 
 $(IMG) : $(OSSYS) $(IPL)
-	mformat -f 1440 -C -B $(IPL) -i $(IMG) ::
-	mcopy $(OSSYS) -i $(IMG) ::
+#	mformat -f 1440 -C -B $(IPL) -i $(IMG) ::
+	mkisofs -o $(IPL) $(IMG)
+#	mcopy $(OSSYS) -i $(IMG) ::
 
 $(OSSYS) : $(BOOTOBJS) $(CSRC)/hankaku.c $(ASRC)/head.s 
-	gcc $(ASRC)/head.s -nostdlib -T$(LS)/head.ls -o $(OBJ)/head.bin
-	ld -o $(OBJ)/boot.bin --script=$(LS)/boot.ls $(BOOTOBJS)
+	$(CC) $(ASRC)/head.s -nostdlib -T$(LS)/head.ls -o $(OBJ)/head.bin
+	$(LD) -o $(OBJ)/boot.bin --script=$(LS)/boot.ls $(BOOTOBJS)
 	cat $(OBJ)/head.bin $(OBJ)/boot.bin > $(OSSYS)
 
 $(IPL) : $(ASRC)/ipl.s
-	gcc $(ASRC)/ipl.s -nostdlib -T$(LS)/ipl.ls -o $(IPL)
+	$(CC) $(ASRC)/ipl.s -nostdlib -T$(LS)/ipl.ls -o $(IPL)
 
 $(CSRC)/hankaku.c : $(FSRC)/hankaku.txt
 	$(TOOL)/mkfont $(FSRC)/hankaku.txt -o $(CSRC)/hankaku.c
@@ -40,10 +44,10 @@ $(CSRC)/hankaku.c : $(FSRC)/hankaku.txt
 # General Rules
 
 $(ASRC)/%.s : $(CSRC)/%.c
-	gcc -S $(CSRC)/$*.c -I$(INCLUDE) $(BINOPT) -o $(ASRC)/$*.s
+	$(CC) -S $(CSRC)/$*.c -I$(INCLUDE) $(BINOPT) -o $(ASRC)/$*.s
 
 $(OBJ)/%.o : $(ASRC)/%.s
-	as $(ASRC)/$*.s -o $(OBJ)/$*.o
+	$(AS) $(ASRC)/$*.s -o $(OBJ)/$*.o
 
 # Command
 
